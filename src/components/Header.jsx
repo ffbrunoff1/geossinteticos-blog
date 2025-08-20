@@ -65,9 +65,9 @@ export default function Header() {
               className="flex items-center"
             >
               <img
-                src="https://qotdwocbcoirjlqjkjhq.supabase.co/storage/v1/object/imagens.website.creation/ad5c31a2-f045-4f97-a0ab-2d4f0e6a69e7/logo_1754519234708_0.png"
+                src="/logo-geossinteticos-blog.png"
                 alt="Geossintéticos.Blog"
-                className={`h-10 lg:h-12 w-auto transition-all duration-300 ${
+                className={`h-12 lg:h-16 w-auto transition-all duration-300 ${
                   !isScrolled && !isInternalPage ? 'brightness-0 invert' : ''
                 }`}
               />
