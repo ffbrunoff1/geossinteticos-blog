@@ -38,7 +38,7 @@ export default function Contact() {
         body: JSON.stringify({
           ...formData,
           token,
-          recipientEmail: 'ffbrunoff@yahoo.com.br'
+          recipientEmail: 'contato@geossinteticos.blog'
         })
       })
 
@@ -58,12 +58,12 @@ export default function Contact() {
   }
 
   const contactInfo = [
-    {
-      icon: Mail,
-      title: "E-mail",
-      description: "ffbrunoff@yahoo.com.br",
-      details: "Resposta em até 24h"
-    },
+    // {
+    //   icon: Mail,
+    //   title: "E-mail",
+    //   description: "contato@geossinteticos.blog",
+    //   details: "Resposta em até 24h"
+    // },
     {
       icon: Clock,
       title: "Horário de Atendimento",

@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Search, BookOpen, Grid3X3, Users, Mail } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X, Search, BookOpen, Grid3X3, Users, Mail, Clock, User } from 'lucide-react'
+import { useWordPressPosts } from '../hooks/useWordPressPosts'
 
 export default function Header() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [isSearching, setIsSearching] = useState(false)
+  
+  // Buscar posts para pesquisa
+  const { featuredPosts: allPosts } = useWordPressPosts(50)
   
   // Detecta se estamos em páginas internas (não na home)
   const isInternalPage = location.pathname !== '/'
@@ -21,13 +28,58 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Função de pesquisa em tempo real
+  useEffect(() => {
+    if (searchQuery.trim().length === 0) {
+      setSearchResults([])
+      return
+    }
+
+    setIsSearching(true)
+    
+    // Simular delay para melhor UX
+    const timeoutId = setTimeout(() => {
+      const query = searchQuery.toLowerCase().trim()
+      const results = allPosts.filter(post => 
+        post.title.toLowerCase().includes(query) ||
+        post.excerpt.toLowerCase().includes(query) ||
+        post.category.toLowerCase().includes(query)
+      ).slice(0, 5) // Limitar a 5 resultados
+      
+      setSearchResults(results)
+      setIsSearching(false)
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery, allPosts])
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen)
+    if (!isSearchOpen) {
+      setSearchQuery('')
+      setSearchResults([])
+    }
+  }
+
+  const handleSearchResultClick = (post) => {
+    navigate(`/blog/${post.slug}`)
+    setIsSearchOpen(false)
     setSearchQuery('')
+    setSearchResults([])
+  }
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/blog?search=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery('')
+      setSearchResults([])
+    }
   }
 
   const navItems = [
@@ -60,18 +112,20 @@ export default function Header() {
         <div className="container-custom">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center"
-            >
-              <img
-                src="/logo-geossinteticos-blog.png"
-                alt="Geossintéticos.Blog"
-                className={`h-12 lg:h-16 w-auto transition-all duration-300 ${
-                  !isScrolled && !isInternalPage ? 'brightness-0 invert' : ''
-                }`}
-              />
-            </motion.div>
+            <Link to="/" className="flex items-center">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center"
+              >
+                <img
+                  src="/logo-geossinteticos-blog.png"
+                  alt="Geossintéticos.Blog"
+                  className={`py-1 h-12 lg:h-16 w-auto transition-all duration-300 ${
+                    !isScrolled && !isInternalPage ? 'brightness-0 invert' : ''
+                  }`}
+                />
+              </motion.div>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-8">
@@ -148,10 +202,10 @@ export default function Header() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 right-0 bg-white shadow-xl border-b border-gray-200 p-4"
+              className="absolute top-full left-0 right-0 bg-white shadow-xl border-b border-gray-200 z-40"
             >
-              <div className="container-custom">
-                <div className="relative">
+              <div className="container-custom p-4">
+                <form onSubmit={handleSearchSubmit} className="relative mb-4">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="text"
@@ -161,7 +215,74 @@ export default function Header() {
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none"
                     autoFocus
                   />
-                </div>
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-accent-600 hover:bg-accent-700 text-white px-4 py-1.5 rounded-md transition-colors text-sm font-medium"
+                  >
+                    Buscar
+                  </button>
+                </form>
+
+                {/* Resultados da pesquisa */}
+                {searchQuery.trim().length > 0 && (
+                  <div className="border-t border-gray-100 pt-4">
+                    {isSearching ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-600"></div>
+                        <span className="ml-2 text-gray-600">Buscando...</span>
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-gray-700 mb-3">
+                          Resultados da pesquisa ({searchResults.length})
+                        </h3>
+                        {searchResults.map((post, index) => (
+                          <motion.div
+                            key={post.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => handleSearchResultClick(post)}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
+                          >
+                            <div className="flex-shrink-0 w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center">
+                              <BookOpen className="text-accent-600" size={20} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-medium text-gray-900 group-hover:text-accent-600 transition-colors line-clamp-2">
+                                {post.title}
+                              </h4>
+                              <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                                <span className="flex items-center">
+                                  <User size={12} className="mr-1" />
+                                  {post.author}
+                                </span>
+                                <span className="flex items-center">
+                                  <Clock size={12} className="mr-1" />
+                                  {post.readingTime}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                        <div className="pt-2 border-t border-gray-100">
+                          <button
+                            onClick={handleSearchSubmit}
+                            className="w-full text-center text-sm text-accent-600 hover:text-accent-700 font-medium py-2 hover:bg-accent-50 rounded-lg transition-colors"
+                          >
+                            Ver todos os resultados →
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <BookOpen className="mx-auto text-gray-400 mb-2" size={24} />
+                        <p className="text-gray-600 text-sm">Nenhum resultado encontrado</p>
+                        <p className="text-gray-500 text-xs mt-1">Tente outros termos de busca</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

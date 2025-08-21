@@ -36,12 +36,12 @@ export default function Footer() {
     {
       title: "Contato",
       links: [
-        { 
-          name: "ffbrunoff@yahoo.com.br", 
-          href: "mailto:ffbrunoff@yahoo.com.br", 
-          icon: Mail,
-          isContact: true
-        },
+        // { 
+        //   name: "contato@geossinteticos.blog", 
+        //   href: "mailto:contato@geossinteticos.blog", 
+        //   icon: Mail,
+        //   isContact: true
+        // },
         { 
           name: "Segunda à Sexta: 8h às 18h", 
           href: "#", 
@@ -115,7 +115,7 @@ export default function Footer() {
             >
               <div className="mb-6">
                 <img
-                  src="https://qotdwocbcoirjlqjkjhq.supabase.co/storage/v1/object/imagens.website.creation/ad5c31a2-f045-4f97-a0ab-2d4f0e6a69e7/logo_1754519234708_0.png"
+                  src="/logo-geossinteticos-blog.png"
                   alt="Geossintéticos.Blog"
                   className="h-12 w-auto brightness-0 invert"
                 />
@@ -202,18 +202,7 @@ export default function Footer() {
             {/* Copyright */}
             <div className="text-gray-400 text-sm">
               <p>
-                © {new Date().getFullYear()} Geossintéticos.Blog. Todos os direitos reservados.
-              </p>
-              <p className="mt-1">
-                Criado com <span className="text-accent-400">♥</span> por{' '}
-                <a 
-                  href="https://papum.ai" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-accent-400 hover:text-accent-300 transition-colors"
-                >
-                  Papum
-                </a>
+                © {new Date().getFullYear()} Geossintéticos Blog. Todos os direitos reservados.
               </p>
             </div>
 

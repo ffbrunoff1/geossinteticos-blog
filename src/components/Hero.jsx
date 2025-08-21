@@ -42,7 +42,7 @@ export default function Hero() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center bg-accent-600/10 text-accent-400 px-4 py-2 rounded-full text-sm font-medium mb-6"
+            className="inline-flex items-center bg-accent-600/10 px-4 py-2 rounded-full text-sm text-white font-medium mb-6"
           >
             <TrendingUp size={16} className="mr-2" />
             Portal Líder em Geotecnia
@@ -106,7 +106,7 @@ export default function Hero() {
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 onClick={refreshPosts}
-                className="text-accent-400 hover:text-accent-300 font-medium flex items-center"
+                className="text-white hover:text-accent-300 font-medium flex items-center"
                 disabled={loading}
               >
                 <RefreshCw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -115,7 +115,7 @@ export default function Hero() {
               <Link to="/blog">
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
-                  className="text-accent-400 hover:text-accent-300 font-medium flex items-center"
+                  className="text-white hover:text-accent-300 font-medium flex items-center"
                 >
                   Ver todos <ArrowRight size={16} className="ml-1" />
                 </motion.button>

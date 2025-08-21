@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Search, Filter, ArrowRight } from 'lucide-react';
 import { useWordPressPosts } from '../hooks/useWordPressPosts';
 import PostCard from './PostCard';
+import { useSearchParams } from 'react-router-dom';
 
 const BlogList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { featuredPosts: posts, loading, error, refreshPosts } = useWordPressPosts(12);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+
+  // Sincronizar com parâmetros da URL
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
+
+  // Atualizar URL quando buscar
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    if (value.trim()) {
+      setSearchParams({ search: value.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   // Filtrar posts baseado na busca e categoria
   const filteredPosts = posts.filter(post => {
@@ -76,8 +96,8 @@ const BlogList = () => {
                 type="text"
                 placeholder="Buscar artigos..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full h-12 pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-white"
               />
             </div>
 
@@ -86,7 +106,14 @@ const BlogList = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-white text-gray-900 appearance-none cursor-pointer"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                  backgroundPosition: 'right 0.5rem center',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: '1.5em 1.5em',
+                  paddingRight: '2.5rem'
+                }}
               >
                 <option value="">Todas as categorias</option>
                 {categories.map(category => (
@@ -99,7 +126,7 @@ const BlogList = () => {
             <button
               onClick={refreshPosts}
               disabled={loading}
-              className="px-6 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="h-12 px-6 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium"
             >
               {loading ? 'Atualizando...' : 'Atualizar'}
             </button>
@@ -177,6 +204,7 @@ const BlogList = () => {
               onClick={() => {
                 setSearchTerm('');
                 setSelectedCategory('');
+                setSearchParams({});
               }}
               className="bg-accent-600 hover:bg-accent-700 text-white px-6 py-3 rounded-lg transition-colors"
             >
@@ -185,21 +213,34 @@ const BlogList = () => {
           </motion.div>
         )}
 
-        {/* Paginação (futuro) */}
+        {/* Paginação */}
         {!loading && !error && filteredPosts.length > 0 && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.6 }}
-            className="flex justify-center mt-12"
+            className="flex justify-start mt-12 mb-16"
           >
-            <div className="flex items-center space-x-2">
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                Anterior
+            <div className="flex items-center space-x-3 bg-white rounded-xl shadow-sm border border-gray-200 p-2">
+              <button 
+                className="px-4 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={true}
+              >
+                ← Anterior
               </button>
-              <span className="px-4 py-2 text-gray-600">Página 1 de 1</span>
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                Próxima
+              
+              <div className="flex items-center space-x-1">
+                <button className="w-10 h-10 bg-accent-600 text-white rounded-lg font-medium">
+                  1
+                </button>
+                <span className="px-3 text-gray-400 text-sm">de 1</span>
+              </div>
+              
+              <button 
+                className="px-4 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={true}
+              >
+                Próxima →
               </button>
             </div>
           </motion.div>
