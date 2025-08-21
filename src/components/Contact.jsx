@@ -195,13 +195,6 @@ export default function Contact() {
                   ></textarea>
                 </div>
 
-                {/* reCAPTCHA */}
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  size="invisible"
-                  sitekey="6Lc7xpsrAAAAAKh0I1boee2JN1oO8iF_yd0ihl79"
-                />
-
                 {/* Submit Status */}
                 {submitStatus === 'success' && (
                   <motion.div
@@ -246,7 +239,41 @@ export default function Contact() {
                     </>
                   )}
                 </motion.button>
+
+                {/* reCAPTCHA */}
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    size="invisible"
+                    sitekey="6Lc7xpsrAAAAAKh0I1boee2JN1oO8iF_yd0ihl79"
+                  />
+                </div>
               </form>
+              
+              {/* reCAPTCHA Privacy Notice */}
+              <div className="mt-4 text-center">
+                <p className="text-xs text-gray-500">
+                  This site is protected by reCAPTCHA and the Google{' '}
+                  <a 
+                    href="https://policies.google.com/privacy" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-accent-600 hover:text-accent-700 underline"
+                  >
+                    Privacy Policy
+                  </a>{' '}
+                  and{' '}
+                  <a 
+                    href="https://policies.google.com/terms" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-accent-600 hover:text-accent-700 underline"
+                  >
+                    Terms of Service
+                  </a>{' '}
+                  apply.
+                </p>
+              </div>
             </div>
           </motion.div>
 

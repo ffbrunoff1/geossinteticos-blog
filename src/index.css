@@ -44,6 +44,24 @@
     @apply bg-gradient-to-r from-accent-600 to-accent-500 bg-clip-text text-transparent;
   }
 
+  /* Hide reCAPTCHA badge */
+  .grecaptcha-badge {
+    visibility: hidden !important;
+    display: none !important;
+  }
+  
+  /* Alternative selectors for reCAPTCHA badge */
+  div[data-style*="bottomright"] {
+    visibility: hidden !important;
+    display: none !important;
+  }
+  
+  .grecaptcha-badge,
+  .grecaptcha-badge > div {
+    visibility: hidden !important;
+    display: none !important;
+  }
+
   .section-padding {
     @apply py-16 lg:py-24;
   }
