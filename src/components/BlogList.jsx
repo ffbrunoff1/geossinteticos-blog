@@ -3,27 +3,49 @@ import { motion } from 'framer-motion';
 import { BookOpen, Search, Filter, ArrowRight } from 'lucide-react';
 import { useWordPressPosts } from '../hooks/useWordPressPosts';
 import PostCard from './PostCard';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 
 const BlogList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { category } = useParams();
   const { featuredPosts: posts, loading, error, refreshPosts } = useWordPressPosts(12);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  // Sincronizar com parâmetros da URL
+  // Mapeamento de slugs para nomes de categoria
+  const categoryMapping = {
+    'geotextil-nao-tecido': 'Geotêxtil não tecido',
+    'geotextil-tecido': 'Geotêxtil tecido',
+    'geogrelha': 'Geogrelha',
+    'geomembrana': 'Geomembrana',
+    'geocelulas': 'Geocélulas'
+  };
+
+  // Sincronizar com parâmetros da URL e rota
   useEffect(() => {
     const urlSearch = searchParams.get('search');
-    if (urlSearch) {
-      setSearchTerm(urlSearch);
+    
+    // Se há uma categoria na URL, usar como termo de busca
+    if (category && categoryMapping[category]) {
+      setSearchTerm(categoryMapping[category]);
+      // Scroll para o topo quando mudar de categoria
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [searchParams]);
+    // Se não há categoria na URL mas há parâmetro de busca, usar o parâmetro
+    else if (urlSearch) {
+      setSearchTerm(urlSearch);
+      // Scroll para o topo quando mudar a busca
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchParams, category]);
 
   // Atualizar URL quando buscar
   const handleSearch = (value) => {
     setSearchTerm(value);
     if (value.trim()) {
       setSearchParams({ search: value.trim() });
+      // Scroll para o topo quando fizer uma nova busca
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setSearchParams({});
     }

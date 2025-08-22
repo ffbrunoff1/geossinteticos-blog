@@ -1,38 +1,20 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { ChevronUp, Mail, MapPin, Clock, ExternalLink, BookOpen, FileText, Users, MessageSquare } from 'lucide-react'
 
 export default function Footer() {
   const footerSections = [
-    {
-      title: "Conteúdo",
-      links: [
-        { name: "Artigos Técnicos", href: "#artigos", icon: FileText },
-        { name: "Guias Práticos", href: "#guias", icon: BookOpen },
-        { name: "Vídeos Educativos", href: "#videos", icon: Users },
-        { name: "Downloads", href: "#downloads", icon: ExternalLink }
-      ]
-    },
-    {
-      title: "Categorias",
-      links: [
-        { name: "Geotêxtil não tecido", href: "#geotextil-nao-tecido" },
-        { name: "Geotêxtil tecido", href: "#geotextil-tecido" },
-        { name: "Geogrelha", href: "#geogrelha" },
-        { name: "Geomembrana", href: "#geomembrana" },
-        { name: "Geocélulas", href: "#geocelulas" }
-      ]
-    },
-    {
-      title: "Sobre Nós",
-      links: [
-        { name: "Nossa Missão", href: "#about" },
-        { name: "Equipe de Especialistas", href: "#team" },
-        { name: "Como Contribuir", href: "#contribute" },
-        { name: "Política de Privacidade", href: "#privacy" },
-        { name: "Termos de Uso", href: "#terms" }
-      ]
-    },
+            {
+          title: "Categorias",
+          links: [
+            { name: "Geotêxtil não tecido", href: "/blog/categoria/geotextil-nao-tecido" },
+            { name: "Geotêxtil tecido", href: "/blog/categoria/geotextil-tecido" },
+            { name: "Geogrelha", href: "/blog/categoria/geogrelha" },
+            { name: "Geomembrana", href: "/blog/categoria/geomembrana" },
+            { name: "Geocélulas", href: "/blog/categoria/geocelulas" }
+          ]
+        },
     {
       title: "Contato",
       links: [
@@ -126,24 +108,7 @@ export default function Footer() {
                 a inovação no setor de engenharia civil.
               </p>
               
-              {/* Newsletter Signup */}
-              <div className="bg-gray-800 rounded-lg p-4">
-                <h4 className="font-semibold text-white mb-3">Newsletter Semanal</h4>
-                <div className="flex space-x-2">
-                  <input
-                    type="email"
-                    placeholder="Seu melhor e-mail"
-                    className="flex-1 px-3 py-2 bg-gray-700 text-white placeholder-gray-400 rounded border border-gray-600 focus:border-accent-500 focus:ring-1 focus:ring-accent-500 outline-none text-sm"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-accent-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-accent-700 transition-colors"
-                  >
-                    Assinar
-                  </motion.button>
-                </div>
-              </div>
+
             </motion.div>
 
             {/* Footer Links */}
@@ -167,21 +132,40 @@ export default function Footer() {
                       viewport={{ once: true }}
                       transition={{ delay: (sectionIndex + 1) * 0.1 + linkIndex * 0.05, duration: 0.5 }}
                     >
-                      <motion.a
-                        href={link.href}
-                        whileHover={{ x: 5 }}
-                        className={`flex items-center text-gray-400 hover:text-accent-400 transition-colors text-sm ${
-                          link.isContact ? 'mb-1' : ''
-                        }`}
-                      >
-                        {link.icon && (
-                          <link.icon size={14} className="mr-2 flex-shrink-0" />
-                        )}
-                        {link.name}
-                        {!link.isContact && (
-                          <ExternalLink size={12} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        )}
-                      </motion.a>
+                      {link.href.startsWith('/') ? (
+                        <motion.div whileHover={{ x: 5 }}>
+                          <Link
+                            to={link.href}
+                            className={`flex items-center text-gray-400 hover:text-accent-400 transition-colors text-sm ${
+                              link.isContact ? 'mb-1' : ''
+                            }`}
+                          >
+                            {link.icon && (
+                              <link.icon size={14} className="mr-2 flex-shrink-0" />
+                            )}
+                            {link.name}
+                            {!link.isContact && (
+                              <ExternalLink size={12} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                          </Link>
+                        </motion.div>
+                      ) : (
+                        <motion.a
+                          href={link.href}
+                          whileHover={{ x: 5 }}
+                          className={`flex items-center text-gray-400 hover:text-accent-400 transition-colors text-sm ${
+                            link.isContact ? 'mb-1' : ''
+                          }`}
+                        >
+                          {link.icon && (
+                            <link.icon size={14} className="mr-2 flex-shrink-0" />
+                          )}
+                          {link.name}
+                          {!link.isContact && (
+                            <ExternalLink size={12} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          )}
+                        </motion.a>
+                      )}
                     </motion.li>
                   ))}
                 </ul>
@@ -208,27 +192,14 @@ export default function Footer() {
 
             {/* Additional Links */}
             <div className="flex items-center space-x-6 text-sm text-gray-400">
-              <motion.a
-                href="#privacy"
-                whileHover={{ scale: 1.05 }}
-                className="hover:text-accent-400 transition-colors"
-              >
-                Privacidade
-              </motion.a>
-              <motion.a
-                href="#terms"
-                whileHover={{ scale: 1.05 }}
-                className="hover:text-accent-400 transition-colors"
-              >
-                Termos
-              </motion.a>
-              <motion.a
-                href="#sitemap"
-                whileHover={{ scale: 1.05 }}
-                className="hover:text-accent-400 transition-colors"
-              >
-                Mapa do Site
-              </motion.a>
+              <motion.div whileHover={{ scale: 1.05 }}>
+                <Link
+                  to="/privacidade"
+                  className="hover:text-accent-400 transition-colors"
+                >
+                  Privacidade
+                </Link>
+              </motion.div>
             </div>
           </div>
         </motion.div>

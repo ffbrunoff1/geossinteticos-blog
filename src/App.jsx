@@ -8,6 +8,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import BlogPost from './components/BlogPost';
 import BlogList from './components/BlogList';
+import Privacy from './components/Privacy';
 
 export default function App() {
   return (
@@ -25,7 +26,9 @@ export default function App() {
               </>
             } />
             <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/categoria/:category" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/privacidade" element={<Privacy />} />
           </Routes>
         </main>
         <Footer />

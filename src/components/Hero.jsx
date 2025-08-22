@@ -191,32 +191,7 @@ export default function Hero() {
             </motion.div>
           )}
 
-          {/* Newsletter CTA */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.8 }}
-            className="mt-12 bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 text-center"
-          >
-            <Star className="mx-auto text-accent-200 mb-4" size={32} />
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Não Perca Nenhuma Novidade
-            </h3>
-            <p className="text-accent-100 mb-6 max-w-2xl mx-auto">
-              Receba semanalmente os melhores conteúdos sobre geossintéticos e geotecnia 
-              diretamente em seu e-mail.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input 
-                type="email" 
-                placeholder="Seu melhor e-mail"
-                className="flex-1 px-4 py-3 rounded-lg text-gray-900 outline-none focus:ring-2 focus:ring-accent-300"
-              />
-              <button className="bg-white text-accent-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
-                Assinar Agora
-              </button>
-            </div>
-          </motion.div>
+
         </motion.div>
       </div>
     </section>

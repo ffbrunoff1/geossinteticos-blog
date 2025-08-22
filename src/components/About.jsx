@@ -269,40 +269,7 @@ export default function About() {
           </div>
         </motion.div>
 
-        {/* Call to Action */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.7, duration: 0.8 }}
-          className="mt-16 text-center"
-        >
-          <div className="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-8 lg:p-12">
-            <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">
-              Faça Parte da Nossa Comunidade
-            </h3>
-            <p className="text-accent-100 text-lg mb-8 max-w-2xl mx-auto">
-              Junte-se a milhares de profissionais que confiam no nosso conteúdo 
-              para se manterem atualizados sobre as últimas tendências em geossintéticos.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-accent-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                Explorar Artigos
-              </motion.button>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="border-2 border-white text-white font-semibold px-8 py-3 rounded-lg hover:bg-white hover:text-accent-600 transition-colors"
-              >
-                Assinar Newsletter
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
+
       </div>
     </section>
   )

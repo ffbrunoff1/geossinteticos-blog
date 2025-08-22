@@ -82,12 +82,56 @@ export default function Header() {
     }
   }
 
+  const handleSobreClick = (e) => {
+    e.preventDefault()
+    if (location.pathname !== '/') {
+      // Se não estiver na página inicial, navega para ela
+      navigate('/')
+      // Aguarda a navegação e depois faz scroll para a seção Sobre
+      setTimeout(() => {
+        const aboutSection = document.getElementById('about')
+        if (aboutSection) {
+          aboutSection.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 100)
+    } else {
+      // Se já estiver na página inicial, apenas faz scroll para a seção Sobre
+      const aboutSection = document.getElementById('about')
+      if (aboutSection) {
+        aboutSection.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }
+
+  const handleInicioClick = () => {
+    if (location.pathname !== '/') {
+      // Se não estiver na página inicial, navega para ela
+      navigate('/')
+      // Aguarda a navegação e depois faz scroll para o topo
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }, 100)
+    } else {
+      // Se já estiver na página inicial, apenas faz scroll para o topo
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handleBlogClick = () => {
+    // Sempre navega para /blog limpo (sem parâmetros de pesquisa)
+    navigate('/blog')
+    // Aguarda a navegação e depois faz scroll para o topo
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 100)
+  }
+
   const navItems = [
-    { name: 'Início', href: '/', icon: BookOpen },
-    { name: 'Blog', href: '/blog', icon: BookOpen },
-    { name: 'Categorias', href: '#categories', icon: Grid3X3 },
-    { name: 'Sobre', href: '#about', icon: Users },
-    { name: 'Contato', href: '#contact', icon: Mail }
+    { name: 'Início', href: '/', icon: BookOpen, isSpecial: true, handler: 'inicio' },
+    { name: 'Blog', href: '/blog', icon: BookOpen, isSpecial: true, handler: 'blog' },
+    // { name: 'Categorias', href: '#categories', icon: Grid3X3 },
+    { name: 'Sobre', href: '#about', icon: Users, isSpecial: true, handler: 'sobre' },
+    // { name: 'Contato', href: '#contact', icon: Mail }
   ]
 
   const categories = [
@@ -137,16 +181,20 @@ export default function Header() {
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  {item.href.startsWith('/') ? (
-                    <Link
-                      to={item.href}
+                  {item.isSpecial ? (
+                    <button
+                      onClick={() => {
+                        if (item.handler === 'inicio') handleInicioClick()
+                        else if (item.handler === 'blog') handleBlogClick()
+                        else if (item.handler === 'sobre') handleSobreClick({ preventDefault: () => {} })
+                      }}
                       className={`flex items-center space-x-2 font-medium transition-colors duration-300 hover:text-accent-600 ${
                         isScrolled || isInternalPage ? 'text-gray-900' : 'text-white'
                       }`}
                     >
                       <item.icon size={18} />
                       <span>{item.name}</span>
-                    </Link>
+                    </button>
                   ) : (
                     <a
                       href={item.href}
@@ -300,18 +348,37 @@ export default function Header() {
               <div className="container-custom py-4">
                 <nav className="space-y-4">
                   {navItems.map((item, index) => (
-                    <motion.a
-                      key={item.name}
-                      href={item.href}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center space-x-3 text-gray-900 hover:text-accent-600 font-medium py-2 transition-colors duration-300"
-                    >
-                      <item.icon size={20} />
-                      <span>{item.name}</span>
-                    </motion.a>
+                    item.isSpecial ? (
+                      <motion.button
+                        key={item.name}
+                        onClick={() => {
+                          if (item.handler === 'inicio') handleInicioClick()
+                          else if (item.handler === 'blog') handleBlogClick()
+                          else if (item.handler === 'sobre') handleSobreClick({ preventDefault: () => {} })
+                          setIsMobileMenuOpen(false)
+                        }}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center space-x-3 text-gray-900 hover:text-accent-600 font-medium py-2 transition-colors duration-300 w-full text-left"
+                      >
+                        <item.icon size={20} />
+                        <span>{item.name}</span>
+                      </motion.button>
+                    ) : (
+                      <motion.a
+                        key={item.name}
+                        href={item.href}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center space-x-3 text-gray-900 hover:text-accent-600 font-medium py-2 transition-colors duration-300"
+                      >
+                        <item.icon size={20} />
+                        <span>{item.name}</span>
+                      </motion.a>
+                    )
                   ))}
                 </nav>
               </div>
@@ -332,28 +399,39 @@ export default function Header() {
             Categorias
           </h3>
           <nav className="space-y-3">
-            {categories.map((category, index) => (
-              <motion.a
-                key={category}
-                href={`#${category.toLowerCase().replace(/\s+/g, '-')}`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ x: 10 }}
-                className="block p-3 rounded-lg text-gray-700 hover:text-accent-600 hover:bg-accent-50 transition-all duration-300 font-medium"
-              >
-                {category}
-              </motion.a>
-            ))}
+            {categories.map((category, index) => {
+              // Mapear nomes de categoria para slugs
+              const categorySlugs = {
+                'Geotêxtil não tecido': 'geotextil-nao-tecido',
+                'Geotêxtil tecido': 'geotextil-tecido',
+                'Geogrelha': 'geogrelha',
+                'Geomembrana': 'geomembrana',
+                'Geocélulas': 'geocelulas'
+              };
+              
+              const slug = categorySlugs[category];
+              const href = slug ? `/blog/categoria/${slug}` : '#';
+              
+              return (
+                <motion.div
+                  key={category}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ x: 10 }}
+                >
+                  <Link
+                    to={href}
+                    className="block p-3 rounded-lg text-gray-700 hover:text-accent-600 hover:bg-accent-50 transition-all duration-300 font-medium"
+                  >
+                    {category}
+                  </Link>
+                </motion.div>
+              );
+            })}
           </nav>
           
-          <div className="mt-8 p-4 bg-gradient-to-br from-accent-50 to-primary-50 rounded-lg">
-            <h4 className="font-semibold text-gray-900 mb-2">Newsletter</h4>
-            <p className="text-sm text-gray-600 mb-3">Receba os melhores conteúdos sobre geotecnia</p>
-            <button className="w-full btn-primary text-sm py-2">
-              Assinar Newsletter
-            </button>
-          </div>
+
         </div>
       </motion.aside>
     </>
