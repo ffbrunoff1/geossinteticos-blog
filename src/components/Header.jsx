@@ -10,6 +10,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [isSearching, setIsSearching] = useState(false)
@@ -173,6 +174,14 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-8">
+              {/* Botão para mostrar/ocultar sidebar em telas lg */}
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="2xl:hidden flex items-center space-x-2 font-medium transition-colors duration-300 hover:text-accent-600 text-gray-900"
+              >
+                <Grid3X3 size={18} />
+                <span>Categorias</span>
+              </button>
               {navItems.map((item, index) => (
                 <motion.div
                   key={item.name}
@@ -391,8 +400,9 @@ export default function Header() {
       <motion.aside
         initial={{ x: -300 }}
         animate={{ x: 0 }}
-        className="hidden xl:block fixed left-0 top-20 w-80 h-screen bg-white shadow-lg border-r border-gray-200 z-40 pt-8"
+        className="hidden 2xl:block fixed left-0 top-20 w-80 h-screen bg-white shadow-lg border-r border-gray-200 z-40 pt-8 overflow-y-auto"
       >
+        {/* Conteúdo da sidebar desktop */}
         <div className="px-6">
           <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
             <Grid3X3 className="mr-2 text-accent-600" size={20} />
@@ -430,10 +440,80 @@ export default function Header() {
               );
             })}
           </nav>
-          
-
         </div>
       </motion.aside>
+
+      {/* Sidebar Categories - Mobile/Tablet (overlay) */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 bg-black/50 z-50 2xl:hidden"
+            />
+            
+            {/* Sidebar */}
+            <motion.aside
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              className="fixed left-0 top-20 w-80 h-screen bg-white shadow-lg border-r border-gray-200 z-50 pt-8 overflow-y-auto 2xl:hidden"
+            >
+              <div className="px-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                    <Grid3X3 className="mr-2 text-accent-600" size={20} />
+                    Categorias
+                  </h3>
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <nav className="space-y-3">
+                  {categories.map((category, index) => {
+                    // Mapear nomes de categoria para slugs
+                    const categorySlugs = {
+                      'Geotêxtil não tecido': 'geotextil-nao-tecido',
+                      'Geotêxtil tecido': 'geotextil-tecido',
+                      'Geogrelha': 'geogrelha',
+                      'Geomembrana': 'geomembrana',
+                      'Geocélulas': 'geocelulas'
+                    };
+                    
+                    const slug = categorySlugs[category];
+                    const href = slug ? `/blog/categoria/${slug}` : '#';
+                    
+                    return (
+                      <motion.div
+                        key={category}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ x: 10 }}
+                      >
+                        <Link
+                          to={href}
+                          onClick={() => setIsSidebarOpen(false)}
+                          className="block p-3 rounded-lg text-gray-700 hover:text-accent-600 hover:bg-accent-50 transition-all duration-300 font-medium"
+                        >
+                          {category}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </nav>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }

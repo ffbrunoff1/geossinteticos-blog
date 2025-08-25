@@ -69,6 +69,13 @@
   .container-custom {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
+
+  /* Responsive sidebar adjustments */
+  @media (min-width: 1280px) {
+    .sidebar-visible {
+      margin-left: 20rem; /* 80 * 0.25rem = 20rem */
+    }
+  }
 }
 
 @layer utilities {

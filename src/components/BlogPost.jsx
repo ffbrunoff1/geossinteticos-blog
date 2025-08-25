@@ -46,7 +46,8 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="container-custom">
+      <div className="lg:ml-0 2xl:ml-80">
+        <div className="container-custom">
         {/* Breadcrumb */}
         <nav className="mb-8 mt-8">
           <ol className="flex items-center space-x-2 text-sm text-gray-600">
@@ -178,6 +179,7 @@ const BlogPost = () => {
             </div>
           </div>
         </motion.div>
+        </div>
       </div>
     </div>
   );

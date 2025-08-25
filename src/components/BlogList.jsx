@@ -64,7 +64,8 @@ const BlogList = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="container-custom">
+      <div className="lg:ml-0 2xl:ml-80">
+        <div className="container-custom">
         {/* Header da página */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -267,6 +268,7 @@ const BlogList = () => {
             </div>
           </motion.div>
         )}
+        </div>
       </div>
     </div>
   );
