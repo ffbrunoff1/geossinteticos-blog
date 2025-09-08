@@ -1,4 +1,6 @@
 import { generateSitemapXML } from './src/services/sitemapGenerator.js';
+import fs from 'fs';
+import path from 'path';
 
 export function sitemapPlugin() {
   return {
@@ -21,6 +23,21 @@ export function sitemapPlugin() {
           res.end('Erro interno do servidor');
         }
       });
+    },
+    async writeBundle() {
+      try {
+        console.log('Gerando sitemap.xml estático (fallback)...');
+        const sitemapXML = await generateSitemapXML();
+        
+        // Criar o arquivo sitemap.xml no diretório dist como fallback
+        const outputPath = path.join(process.cwd(), 'dist', 'sitemap.xml');
+        fs.writeFileSync(outputPath, sitemapXML);
+        
+        console.log('✅ sitemap.xml estático gerado com sucesso!');
+        console.log('ℹ️  Sitemap dinâmico disponível em /api/sitemap');
+      } catch (error) {
+        console.error('❌ Erro ao gerar sitemap.xml:', error);
+      }
     }
   };
 }
