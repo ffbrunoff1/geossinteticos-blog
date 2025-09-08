@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { User, Clock, ArrowRight, TrendingUp } from 'lucide-react';
 
@@ -13,12 +12,8 @@ const PostCard = ({ post, isMain = false, onClick }) => {
   if (isMain) {
     return (
       <Link to={`/blog/${post.slug}`}>
-        <motion.article 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.6 }}
+        <article 
           className="lg:row-span-2 card overflow-hidden group cursor-pointer"
-          whileHover={{ y: -5 }}
           onClick={handleClick}
         >
         <div className="relative h-64 lg:h-80 overflow-hidden">
@@ -65,19 +60,15 @@ const PostCard = ({ post, isMain = false, onClick }) => {
             <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
-        </motion.article>
+        </article>
       </Link>
     );
   }
 
   return (
     <Link to={`/blog/${post.slug}`}>
-      <motion.article 
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
+      <article 
         className="card overflow-hidden group cursor-pointer"
-        whileHover={{ y: -3 }}
         onClick={handleClick}
       >
       <div className="flex">
@@ -110,7 +101,7 @@ const PostCard = ({ post, isMain = false, onClick }) => {
           </div>
         </div>
       </div>
-        </motion.article>
+        </article>
       </Link>
     );
   };

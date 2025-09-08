@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Search, Filter, ArrowRight } from 'lucide-react';
 import { useWordPressPosts } from '../hooks/useWordPressPosts';
@@ -11,8 +11,9 @@ const BlogList = () => {
   const { featuredPosts: posts, loading, error, refreshPosts } = useWordPressPosts(30);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 12;
+  const [displayedPosts, setDisplayedPosts] = useState([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const postsPerLoad = 12;
 
   // Mapeamento de slugs para nomes de categoria
   const categoryMapping = {
@@ -53,32 +54,66 @@ const BlogList = () => {
     }
   };
 
-  // Filtrar posts baseado na busca e categoria
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || post.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Filtrar posts baseado na busca e categoria (memoized)
+  const filteredPosts = useMemo(() => {
+    return posts.filter(post => {
+      const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !selectedCategory || post.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [posts, searchTerm, selectedCategory]);
 
-  // Calcular paginação
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const endIndex = startIndex + postsPerPage;
-  const currentPosts = filteredPosts.slice(startIndex, endIndex);
+  // Função para carregar mais posts
+  const loadMorePosts = useCallback(() => {
+    if (isLoadingMore || displayedPosts.length >= filteredPosts.length) {
+      return;
+    }
+    
+    setIsLoadingMore(true);
+    
+    // Carregamento instantâneo
+    setDisplayedPosts(prev => {
+      const nextBatch = filteredPosts.slice(prev.length, prev.length + postsPerLoad);
+      return [...prev, ...nextBatch];
+    });
+    setIsLoadingMore(false);
+  }, [filteredPosts.length, isLoadingMore, postsPerLoad]);
+
 
   // Obter categorias únicas
   const categories = [...new Set(posts.map(post => post.category))];
 
-  // Reset página quando filtros mudarem
+  // Initialize displayed posts when posts are loaded
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory]);
+    if (posts.length > 0 && displayedPosts.length === 0) {
+      const initialPosts = filteredPosts.slice(0, postsPerLoad);
+      setDisplayedPosts(initialPosts);
+    }
+  }, [posts.length, displayedPosts.length, filteredPosts.length, postsPerLoad]);
 
-  // Scroll para o topo quando mudar de página
+  // Reset displayed posts when filters change
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage]);
+    const resetPosts = filteredPosts.slice(0, postsPerLoad);
+    setDisplayedPosts(resetPosts);
+  }, [searchTerm, selectedCategory, filteredPosts.length, postsPerLoad]);
+
+  // Scroll event listener for infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.offsetHeight;
+      const threshold = 500;
+      
+      if (scrollTop + windowHeight >= documentHeight - threshold) {
+        loadMorePosts();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMorePosts]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -205,39 +240,20 @@ const BlogList = () => {
           </motion.div>
         )}
 
-        {/* Posts Counter */}
-        {!loading && !error && filteredPosts.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-center mb-8"
-          >
-            <p className="text-gray-600">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, filteredPosts.length)} de {filteredPosts.length} artigos
-            </p>
-          </motion.div>
-        )}
 
         {/* Posts Grid */}
-        {!loading && !error && currentPosts.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-            className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8"
-          >
-            {currentPosts.map((post, index) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
+        {!loading && !error && displayedPosts.length > 0 && (
+          <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8 grid-auto-rows-fr transition-all duration-0">
+            {displayedPosts.map((post, index) => (
+              <div 
+                key={post.id} 
+                className="opacity-0 animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <PostCard post={post} isMain={false} />
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {/* Empty State */}
@@ -268,47 +284,46 @@ const BlogList = () => {
           </motion.div>
         )}
 
-        {/* Paginação */}
-        {!loading && !error && filteredPosts.length > 0 && totalPages > 1 && (
+        {/* Load More Button */}
+        {!loading && !error && displayedPosts.length > 0 && displayedPosts.length < filteredPosts.length && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.6 }}
             className="flex justify-center mt-12 mb-16"
           >
-            <div className="flex items-center space-x-3 bg-white rounded-xl shadow-sm border border-gray-200 p-2">
-              <button 
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className="px-4 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentPage === 1}
-              >
-                ← Anterior
-              </button>
-              
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage === page
-                        ? 'bg-accent-600 text-white'
-                        : 'text-gray-600 hover:text-accent-600 hover:bg-accent-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-                <span className="px-3 text-gray-400 text-sm">de {totalPages}</span>
-              </div>
-              
-              <button 
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className="px-4 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentPage === totalPages}
-              >
-                Próxima →
-              </button>
+            <button
+              onClick={loadMorePosts}
+              disabled={isLoadingMore}
+              className="px-8 py-4 bg-accent-600 hover:bg-accent-700 text-white rounded-xl transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            >
+              {isLoadingMore ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Carregando...</span>
+                </>
+              ) : (
+                <>
+                  <span>Carregar mais artigos</span>
+                  <ArrowRight size={20} />
+                </>
+              )}
+            </button>
+          </motion.div>
+        )}
+
+        {/* End of Posts Message */}
+        {!loading && !error && displayedPosts.length > 0 && displayedPosts.length === filteredPosts.length && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.6 }}
+            className="text-center mt-12 mb-16"
+          >
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <BookOpen className="mx-auto text-gray-400 mb-3" size={32} />
+              <p className="text-gray-600 font-medium">Você viu todos os artigos disponíveis!</p>
+              <p className="text-gray-500 text-sm mt-1">Volte em breve para novos conteúdos.</p>
             </div>
           </motion.div>
         )}
