@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { buildApiUrl, WORDPRESS_CONFIG } from '../config/wordpress';
+import { buildApiUrl, WORDPRESS_CONFIG } from '../config/wordpress.js';
 
 // Cliente axios configurado para WordPress
 const wordpressClient = axios.create({

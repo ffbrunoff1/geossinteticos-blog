@@ -8,9 +8,11 @@ import { useSearchParams, useParams } from 'react-router-dom';
 const BlogList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { category } = useParams();
-  const { featuredPosts: posts, loading, error, refreshPosts } = useWordPressPosts(12);
+  const { featuredPosts: posts, loading, error, refreshPosts } = useWordPressPosts(30);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 12;
 
   // Mapeamento de slugs para nomes de categoria
   const categoryMapping = {
@@ -59,8 +61,24 @@ const BlogList = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // Calcular paginação
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = filteredPosts.slice(startIndex, endIndex);
+
   // Obter categorias únicas
   const categories = [...new Set(posts.map(post => post.category))];
+
+  // Reset página quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
+
+  // Scroll para o topo quando mudar de página
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -187,15 +205,29 @@ const BlogList = () => {
           </motion.div>
         )}
 
-        {/* Posts Grid */}
+        {/* Posts Counter */}
         {!loading && !error && filteredPosts.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="text-center mb-8"
+          >
+            <p className="text-gray-600">
+              Mostrando {startIndex + 1}-{Math.min(endIndex, filteredPosts.length)} de {filteredPosts.length} artigos
+            </p>
+          </motion.div>
+        )}
+
+        {/* Posts Grid */}
+        {!loading && !error && currentPosts.length > 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
             className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8"
           >
-            {filteredPosts.map((post, index) => (
+            {currentPosts.map((post, index) => (
               <motion.div
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -237,31 +269,43 @@ const BlogList = () => {
         )}
 
         {/* Paginação */}
-        {!loading && !error && filteredPosts.length > 0 && (
+        {!loading && !error && filteredPosts.length > 0 && totalPages > 1 && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.6 }}
-            className="flex justify-start mt-12 mb-16"
+            className="flex justify-center mt-12 mb-16"
           >
             <div className="flex items-center space-x-3 bg-white rounded-xl shadow-sm border border-gray-200 p-2">
               <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 className="px-4 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={true}
+                disabled={currentPage === 1}
               >
                 ← Anterior
               </button>
               
               <div className="flex items-center space-x-1">
-                <button className="w-10 h-10 bg-accent-600 text-white rounded-lg font-medium">
-                  1
-                </button>
-                <span className="px-3 text-gray-400 text-sm">de 1</span>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
+                      currentPage === page
+                        ? 'bg-accent-600 text-white'
+                        : 'text-gray-600 hover:text-accent-600 hover:bg-accent-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <span className="px-3 text-gray-400 text-sm">de {totalPages}</span>
               </div>
               
               <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 className="px-4 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={true}
+                disabled={currentPage === totalPages}
               >
                 Próxima →
               </button>

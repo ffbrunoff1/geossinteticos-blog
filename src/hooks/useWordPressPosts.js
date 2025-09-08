@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getFeaturedPosts, getPostsByCategory, getPost } from '../services/wordpressService';
 
-export const useWordPressPosts = () => {
+export const useWordPressPosts = (limit = 4) => {
   const [featuredPosts, setFeaturedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Buscar posts em destaque
-  const fetchFeaturedPosts = useCallback(async (limit = 4) => {
+  const fetchFeaturedPosts = useCallback(async (postsLimit = limit) => {
     try {
       setLoading(true);
       setError(null);
-      const posts = await getFeaturedPosts(limit);
+      const posts = await getFeaturedPosts(postsLimit);
       setFeaturedPosts(posts);
     } catch (err) {
       setError('Erro ao carregar posts em destaque');
@@ -19,7 +19,7 @@ export const useWordPressPosts = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [limit]);
 
   // Buscar posts por categoria
   const fetchPostsByCategory = useCallback(async (categorySlug, limit = 6) => {
@@ -55,13 +55,13 @@ export const useWordPressPosts = () => {
 
   // Carregar posts em destaque ao montar o componente
   useEffect(() => {
-    fetchFeaturedPosts();
-  }, [fetchFeaturedPosts]);
+    fetchFeaturedPosts(limit);
+  }, [fetchFeaturedPosts, limit]);
 
   // Função para recarregar posts
   const refreshPosts = useCallback(() => {
-    fetchFeaturedPosts();
-  }, [fetchFeaturedPosts]);
+    fetchFeaturedPosts(limit);
+  }, [fetchFeaturedPosts, limit]);
 
   return {
     featuredPosts,
