@@ -166,13 +166,14 @@ export default function Hero() {
               )}
 
               {/* Secondary Posts */}
-              <div className="space-y-6">
+              <div className="flex flex-col gap-3">
                 {featuredPosts.slice(1).map((post, index) => (
-                  <PostCard 
-                    key={post.id}
-                    post={post}
-                    isMain={false}
-                  />
+                  <div key={post.id} className="mb-3 last:mb-0">
+                    <PostCard 
+                      post={post}
+                      isMain={false}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
